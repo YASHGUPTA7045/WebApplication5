@@ -1,8 +1,7 @@
 ﻿namespace WebApplication5.Model.DTO
 {
-    public class ProductReadDto
+    public class ProductCreateDto
     {
-        public int ProductId { get; set; }
         public string ProductName { get; set; }
         public int ProductPrice { get; set; }
     }

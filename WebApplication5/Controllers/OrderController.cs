@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication5.Data;
 using WebApplication5.Model;
+using WebApplication5.Model.DTO;
 
 namespace WebApplication5.Controllers
 {
@@ -15,45 +16,64 @@ namespace WebApplication5.Controllers
             _context = context;
         }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetAllOrder()
+        public async Task<ActionResult<IEnumerable<OrderReadDto>>> GetAllOrder()
         {
-            var order = await _context.orders.ToListAsync();
+            var order = await _context.orders.Select(x => new OrderReadDto
+            {
+                OrderName = x.OrderName
+            })
+              .ToListAsync();
             return Ok(order);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetByid(int id)
+        public async Task<ActionResult<OrderReadDto>> GetByid(int id)
         {
-            var order = await _context.orders.FindAsync(id);
+            var order = await _context.orders.FirstOrDefaultAsync(x => x.OrderId == id);
             if (order == null)
             {
                 return NotFound();
             }
-            return Ok(order);
+            var s = new OrderReadDto
+            {
+                OrderId = order.OrderId,
+                OrderName = order.OrderName
+
+            };
+            return Ok(s);
 
         }
         [HttpPost]
-        public async Task<ActionResult<Order>> CreateOrder(Order xyz)
+        public async Task<ActionResult<OrderCreateDto>> CreateOrder(OrderCreateDto xyz)
         {
             var data = new Order
             {
-                OrderId = xyz.OrderId,
+
                 OrderName = xyz.OrderName
             };
-            _context.orders.Add(data);
+            await _context.orders.AddAsync(data);
             await _context.SaveChangesAsync();
-            return Ok(data);
+            var dto = new OrderReadDto
+            {
+                OrderId = data.OrderId,
+                OrderName = data.OrderName
+            };
+            return Ok(dto);
         }
         [HttpPut("{id}")]
-        public async Task<ActionResult<Order>> UpdateOrder(int id, Order xyz)
+        public async Task<ActionResult<OrderUpdateDto>> UpdateOrder(int id, OrderUpdateDto xyz)
         {
-            var update = await _context.orders.FindAsync(id);
+            var update = await _context.orders.FirstOrDefaultAsync(x => x.OrderId == id);
             if (update == null)
             {
                 return NotFound("data not found");
             }
             update.OrderName = xyz.OrderName;
             await _context.SaveChangesAsync();
-            return Ok(update);
+            var Out = new OrderUpdateDto
+            {
+                OrderName = update.OrderName
+            };
+            return Ok(Out);
 
         }
         [HttpDelete("{id}")]

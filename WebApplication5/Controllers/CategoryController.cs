@@ -20,17 +20,23 @@ namespace WebApplication5.Controllers
         public async Task<ActionResult<IEnumerable<CategoryReadDto>>> GetAllCategory()
         {
             var cate = await _context.categories
-                .Include(p => p.products).Select(x => new CategoryReadDto
-                {
-                    CategoryName = x.CategoryName
-                })
+               .Select(x => new CategoryReadDto
+               {
+                   CategoryName = x.CategoryName
+               })
                 .ToListAsync();
             return Ok(cate);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetbyId(int id)
+        public async Task<ActionResult<CategoryReadDto>> GetbyId(int id)
         {
-            var cate = await _context.categories.FindAsync(id);
+            var cate = await _context.categories.Where(c => c.CategoryId == id).
+                Select(x => new CategoryReadDto
+                {
+                    CategoryId = x.CategoryId,
+                    CategoryName = x.CategoryName
+                }).FirstOrDefaultAsync();
+
             if (cate == null)
             {
                 return NotFound("not available");
@@ -39,33 +45,45 @@ namespace WebApplication5.Controllers
 
         }
         [HttpPost]
-        public async Task<ActionResult<Category>> AddCategory(Category xyz)
+        public async Task<ActionResult<CategoryCreateDto>> AddCategory(CategoryCreateDto xyz)
         {
             var cate = new Category
             {
-                CategoryName = xyz.CategoryName,
-                CategoryId = xyz.CategoryId,
-
-
+                CategoryName = xyz.CategoryName
             };
             await _context.categories.AddAsync(cate);
             await _context.SaveChangesAsync();
-            return Ok(cate);
+            var result = new CategoryCreateDto
+            {
+
+                CategoryName = cate.CategoryName
+            };
+            return Ok(result);
         }
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateCategory(int id, Category xyz)
+        public async Task<ActionResult> UpdateCategory(int id, CategoryUpdateDto xyz)
         {
-            var update = await _context.categories.FindAsync(id);
-            if (update == null)
+            var category = await _context.categories.FirstOrDefaultAsync(c => c.CategoryId == id);
+
+            if (category == null)
             {
-                return NotFound("data not available");
+                return NotFound("Category not available");
             }
-            update.CategoryName = xyz.CategoryName;
+
+
+            category.CategoryName = xyz.CategoryName;
+
             await _context.SaveChangesAsync();
-            return Ok(update);
+            var result = new CategoryUpdateDto
+            {
+                CategoryName = category.CategoryName
+            };
+
+
+            return Ok(result);
         }
         [HttpDelete("{id}")]
-        public async Task<IActionResult> CategoryDeleted(int id)
+        public async Task<ActionResult> CategoryDeleted(int id)
         {
             var del = await _context.categories.FindAsync(id);
             if (del == null)

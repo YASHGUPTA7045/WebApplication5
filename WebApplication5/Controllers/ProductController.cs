@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication5.Data;
 using WebApplication5.Model;
+using WebApplication5.Model.DTO;
 
 namespace WebApplication5.Controllers
 {
@@ -14,39 +15,54 @@ namespace WebApplication5.Controllers
         {
             _context = context;
         }
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetAllProduct()
+        public async Task<ActionResult<IEnumerable<ProductReadDto>>> GetAllProduct()
         {
-            var result = await _context.Products
-                .Include(p => p.Category)
+            var result = await _context.Products.Select(x => new ProductReadDto
+            {
+                ProductId = x.ProductId,
+                ProductName = x.ProductName,
+                ProductPrice = x.ProductPrice
+            })
+
                 .ToListAsync();
             return Ok(result);
         }
-        [HttpGet("{Id}")]
-        public async Task<ActionResult<Product>> GetById(int Id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ProductReadDto>> GetById(int id)
         {
-            var result = await _context.Products.FindAsync(Id);
+            var result = await _context.Products.Where(x => x.ProductId == id).Select(x => new ProductReadDto
+            {
+                ProductId = x.ProductId,
+                ProductName = x.ProductName,
+                ProductPrice = x.ProductPrice
+            }).FirstOrDefaultAsync();
             if (result == null)
             {
-                return NotFound();
+                return NotFound("data not available");
             }
             return Ok(result);
         }
-        [HttpPost]
-        public async Task<ActionResult<Product>> CreteProduct(Product xyz)
-        {
 
-            var obj = new Product
+        [HttpPost]
+        public async Task<ActionResult<ProductCreateDto>> CreateProduct(ProductCreateDto xyz)
+        {
+            var create = new Product
             {
-                //ProductId = xyz.ProductId,
                 ProductName = xyz.ProductName,
                 ProductPrice = xyz.ProductPrice
             };
-            _context.Products.Add(obj);
+            await _context.Products.AddAsync(create);
             await _context.SaveChangesAsync();
-            return Ok(obj);
-
+            var dto = new ProductCreateDto
+            {
+                ProductName = create.ProductName,
+                ProductPrice = create.ProductPrice
+            };
+            return Ok(dto);
         }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
@@ -59,18 +75,28 @@ namespace WebApplication5.Controllers
             await _context.SaveChangesAsync();
             return Ok(delete);
         }
+
+
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, Product xyz)
+        public async Task<ActionResult> UpdateProduct(int id, ProductUpdateDto xyz)
         {
-            var updated = await _context.Products.FindAsync(id);
-            if (updated == null)
+            var data = await _context.Products.Where(x => x.ProductId == id).FirstOrDefaultAsync();
+            if (data == null)
             {
-                return NotFound("data not found");
+                return NotFound();
             }
-            updated.ProductPrice = xyz.ProductPrice;
-            updated.ProductName = xyz.ProductName;
+            data.ProductName = xyz.ProductName;
+            data.ProductPrice = xyz.ProductPrice;
             await _context.SaveChangesAsync();
-            return Ok(updated);
+            var dto = new ProductReadDto
+            {
+                ProductId = data.ProductId,
+                ProductName = data.ProductName,
+                ProductPrice = data.ProductPrice,
+            };
+
+            return Ok(dto);
         }
 
     }

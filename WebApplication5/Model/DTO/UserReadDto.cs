@@ -1,12 +1,10 @@
-﻿namespace WebApplication5.Model
+﻿namespace WebApplication5.Model.DTO
 {
-    public class User
+    public class UserReadDto
     {
         public int UserId { get; set; }
         public string UserName { get; set; }
         public string UserAddress { get; set; }
-        public ICollection<Order> orders { get; set; }
-
 
     }
 }
