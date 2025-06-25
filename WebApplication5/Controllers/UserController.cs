@@ -18,25 +18,36 @@ namespace WebApplication5.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserReadDto>>> GetAllUser()
         {
-            var res = await _context.users.Select(x => new UserReadDto
-            {
-                UserId = x.UserId,
-                UserName = x.UserName,
-                UserAddress = x.UserAddress
-            })
+            var res = await _context.users.Include(x => x.orders)
+                .Select(x => new UserReadDto
+                {
+                    UserId = x.UserId,
+                    UserName = x.UserName,
+                    UserAddress = x.UserAddress,
+                    Orders = x.orders.Select(x => new OrderIUserDto
+                    {
+                        OrderId = x.OrderId,
+                        OrderName = x.OrderName
+                    }).ToList()
+                })
             .ToListAsync();
             return Ok(res);
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<UserReadDto>> GetUserID(int id)
         {
-            var res = await _context.users.Where(x => x.UserId == id).Select(y => new UserReadDto
-            {
-                UserId = y.UserId,
-                UserName = y.UserName,
-                UserAddress = y.UserAddress
-
-            }).FirstOrDefaultAsync();
+            var res = await _context.users.Include(x => x.orders)
+                .Where(x => x.UserId == id).Select(y => new UserReadDto
+                {
+                    UserId = y.UserId,
+                    UserName = y.UserName,
+                    UserAddress = y.UserAddress,
+                    Orders = y.orders.Select(x => new OrderIUserDto
+                    {
+                        OrderId = x.OrderId,
+                        OrderName = x.OrderName
+                    })
+                }).FirstOrDefaultAsync();
             if (res == null)
             {
                 return NotFound();

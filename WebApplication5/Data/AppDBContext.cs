@@ -13,5 +13,7 @@ namespace WebApplication5.Data
         public DbSet<Order> orders { get; set; }
         public DbSet<User> users { get; set; }
 
+
+
     }
 }

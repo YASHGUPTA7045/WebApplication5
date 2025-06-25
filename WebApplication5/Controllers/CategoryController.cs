@@ -19,10 +19,17 @@ namespace WebApplication5.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoryReadDto>>> GetAllCategory()
         {
-            var cate = await _context.categories
+            var cate = await _context.categories.Include(x => x.Products)
                .Select(x => new CategoryReadDto
                {
-                   CategoryName = x.CategoryName
+                   CategoryName = x.CategoryName,
+                   CategoryId = x.CategoryId,
+                   Products = x.Products.Select(x => new ProductInCategoryDto
+                   {
+                       ProductId = x.ProductId,
+                       ProductName = x.ProductName,
+                       ProductPrice = x.ProductPrice
+                   })
                })
                 .ToListAsync();
             return Ok(cate);
@@ -30,11 +37,18 @@ namespace WebApplication5.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryReadDto>> GetbyId(int id)
         {
-            var cate = await _context.categories.Where(c => c.CategoryId == id).
+            var cate = await _context.categories.Include(x => x.Products)
+                .Where(c => c.CategoryId == id).
                 Select(x => new CategoryReadDto
                 {
                     CategoryId = x.CategoryId,
-                    CategoryName = x.CategoryName
+                    CategoryName = x.CategoryName,
+                    Products = x.Products.Select(p => new ProductInCategoryDto
+                    {
+                        ProductId = p.ProductId,
+                        ProductName = p.ProductName,
+                        ProductPrice = p.ProductPrice
+                    }).ToList()
                 }).FirstOrDefaultAsync();
 
             if (cate == null)

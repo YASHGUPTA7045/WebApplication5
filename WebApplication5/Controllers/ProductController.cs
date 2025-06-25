@@ -19,12 +19,16 @@ namespace WebApplication5.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductReadDto>>> GetAllProduct()
         {
-            var result = await _context.Products.Select(x => new ProductReadDto
-            {
-                ProductId = x.ProductId,
-                ProductName = x.ProductName,
-                ProductPrice = x.ProductPrice
-            })
+            var result = await _context.Products.Include(y => y.Category)
+                .Select(x => new ProductReadDto
+                {
+                    ProductId = x.ProductId,
+                    ProductName = x.ProductName,
+                    ProductPrice = x.ProductPrice,
+                    CategoryId = x.CategoryId,
+                    CategoryName = x.Category.CategoryName
+
+                })
 
                 .ToListAsync();
             return Ok(result);
@@ -32,12 +36,15 @@ namespace WebApplication5.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductReadDto>> GetById(int id)
         {
-            var result = await _context.Products.Where(x => x.ProductId == id).Select(x => new ProductReadDto
-            {
-                ProductId = x.ProductId,
-                ProductName = x.ProductName,
-                ProductPrice = x.ProductPrice
-            }).FirstOrDefaultAsync();
+            var result = await _context.Products.Include(x => x.Category)
+                .Where(x => x.ProductId == id).Select(x => new ProductReadDto
+                {
+                    ProductId = x.ProductId,
+                    ProductName = x.ProductName,
+                    ProductPrice = x.ProductPrice,
+                    CategoryId = x.CategoryId,
+                    CategoryName = x.Category.CategoryName
+                }).FirstOrDefaultAsync();
             if (result == null)
             {
                 return NotFound("data not available");
@@ -51,14 +58,16 @@ namespace WebApplication5.Controllers
             var create = new Product
             {
                 ProductName = xyz.ProductName,
-                ProductPrice = xyz.ProductPrice
+                ProductPrice = xyz.ProductPrice,
+                CategoryId = xyz.CategoryId,
             };
             await _context.Products.AddAsync(create);
             await _context.SaveChangesAsync();
             var dto = new ProductCreateDto
             {
                 ProductName = create.ProductName,
-                ProductPrice = create.ProductPrice
+                ProductPrice = create.ProductPrice,
+                CategoryId = create.CategoryId
             };
             return Ok(dto);
         }
@@ -81,19 +90,24 @@ namespace WebApplication5.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateProduct(int id, ProductUpdateDto xyz)
         {
-            var data = await _context.Products.Where(x => x.ProductId == id).FirstOrDefaultAsync();
+            var data = await _context.Products
+                .Where(x => x.ProductId == id).FirstOrDefaultAsync();
             if (data == null)
             {
                 return NotFound();
             }
             data.ProductName = xyz.ProductName;
             data.ProductPrice = xyz.ProductPrice;
+            data.CategoryId = xyz.CategoryId;
             await _context.SaveChangesAsync();
+
             var dto = new ProductReadDto
             {
                 ProductId = data.ProductId,
                 ProductName = data.ProductName,
                 ProductPrice = data.ProductPrice,
+                CategoryId = data.CategoryId,
+
             };
 
             return Ok(dto);

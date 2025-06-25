@@ -5,7 +5,7 @@
         public int CategoryId { get; set; }
         public string? CategoryName { get; set; }
 
-        //public List<ProductReadDto> Products { get; set; }
+        public IEnumerable<ProductInCategoryDto> Products { get; set; }
 
     }
 }

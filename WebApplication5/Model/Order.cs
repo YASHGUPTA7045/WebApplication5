@@ -4,6 +4,7 @@
     {
         public int OrderId { get; set; }
         public string OrderName { get; set; }
-        public ICollection<Product> products { get; set; }
+        public int UserId { get; set; }
+        public User user { get; set; }
     }
 }

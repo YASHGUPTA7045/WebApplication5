@@ -11,8 +11,8 @@ using WebApplication5.Data;
 namespace WebApplication5.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20250623092151_entity relation")]
-    partial class entityrelation
+    [Migration("20250625093651_Relationa")]
+    partial class Relationa
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,7 +33,6 @@ namespace WebApplication5.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
 
                     b.Property<string>("CategoryName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CategoryId");
@@ -53,7 +52,12 @@ namespace WebApplication5.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("OrderId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("orders");
                 });
@@ -104,10 +108,21 @@ namespace WebApplication5.Migrations
                     b.ToTable("users");
                 });
 
+            modelBuilder.Entity("WebApplication5.Model.Order", b =>
+                {
+                    b.HasOne("WebApplication5.Model.User", "user")
+                        .WithMany("orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("user");
+                });
+
             modelBuilder.Entity("WebApplication5.Model.Product", b =>
                 {
                     b.HasOne("WebApplication5.Model.Category", "Category")
-                        .WithMany("products")
+                        .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -117,7 +132,12 @@ namespace WebApplication5.Migrations
 
             modelBuilder.Entity("WebApplication5.Model.Category", b =>
                 {
-                    b.Navigation("products");
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("WebApplication5.Model.User", b =>
+                {
+                    b.Navigation("orders");
                 });
 #pragma warning restore 612, 618
         }

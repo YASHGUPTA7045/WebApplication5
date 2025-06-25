@@ -11,8 +11,8 @@ using WebApplication5.Data;
 namespace WebApplication5.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20250623092634_entity relationaxds")]
-    partial class entityrelationaxds
+    [Migration("20250625093048_Relation")]
+    partial class Relation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,7 +52,12 @@ namespace WebApplication5.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("OrderId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("orders");
                 });
@@ -65,7 +70,7 @@ namespace WebApplication5.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
 
-                    b.Property<int?>("CategoryId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("ProductName")
@@ -103,18 +108,36 @@ namespace WebApplication5.Migrations
                     b.ToTable("users");
                 });
 
+            modelBuilder.Entity("WebApplication5.Model.Order", b =>
+                {
+                    b.HasOne("WebApplication5.Model.User", "user")
+                        .WithMany("orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("user");
+                });
+
             modelBuilder.Entity("WebApplication5.Model.Product", b =>
                 {
                     b.HasOne("WebApplication5.Model.Category", "Category")
-                        .WithMany("products")
-                        .HasForeignKey("CategoryId");
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
                 });
 
             modelBuilder.Entity("WebApplication5.Model.Category", b =>
                 {
-                    b.Navigation("products");
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("WebApplication5.Model.User", b =>
+                {
+                    b.Navigation("orders");
                 });
 #pragma warning restore 612, 618
         }

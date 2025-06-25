@@ -18,10 +18,15 @@ namespace WebApplication5.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OrderReadDto>>> GetAllOrder()
         {
-            var order = await _context.orders.Select(x => new OrderReadDto
-            {
-                OrderName = x.OrderName
-            })
+            var order = await _context.orders.Include(x => x.user)
+                .Select(x => new OrderReadDto
+                {
+                    OrderName = x.OrderName,
+                    OrderId = x.OrderId,
+                    UserId = x.UserId,
+                    UserName = x.user.UserName,
+                    UserAddress = x.user.UserAddress,
+                })
               .ToListAsync();
             return Ok(order);
         }

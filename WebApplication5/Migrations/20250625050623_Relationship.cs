@@ -5,7 +5,7 @@
 namespace WebApplication5.Migrations
 {
     /// <inheritdoc />
-    public partial class entityrelation : Migration
+    public partial class Relationship : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
