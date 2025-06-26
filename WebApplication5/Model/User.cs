@@ -7,6 +7,11 @@
         public string UserAddress { get; set; }
         public ICollection<Order> orders { get; set; }
 
+        public string Email { get; set; }
+        public string Password { get; set; }
+
+
+
 
     }
 }

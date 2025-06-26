@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication5.Data;
 using WebApplication5.Model;
@@ -15,6 +16,7 @@ namespace WebApplication5.Controllers
         {
             _context = context;
         }
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserReadDto>>> GetAllUser()
         {

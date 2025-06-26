@@ -5,5 +5,6 @@
 
         public string OrderName { get; set; }
         public List<int> ProductIds { get; set; }
+        public List<int> CategoryIds { get; set; }
     }
 }

@@ -3,7 +3,7 @@
     public class CategoryCreateDto
     {
         public string CategoryName { get; set; }
-        public int CategoryId { get; set; }
+        //public int CategoryId { get; set; }
 
     }
 }

@@ -7,5 +7,6 @@
 
         public IEnumerable<ProductInCategoryDto> Products { get; set; }
 
+
     }
 }

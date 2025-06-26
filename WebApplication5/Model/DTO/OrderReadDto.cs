@@ -9,5 +9,8 @@
         public string UserName { get; set; }
         public string UserAddress { get; set; }
 
+        public List<CategoryReadDto> Categories { get; set; }
+
+
     }
 }
