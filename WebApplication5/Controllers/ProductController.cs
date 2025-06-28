@@ -17,9 +17,11 @@ namespace WebApplication5.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductReadDto>>> GetAllProduct()
+        public async Task<ActionResult<IEnumerable<ProductReadDto>>> GetAllProduct(int PageNumber = 1, int PageSize = 10)
         {
-            var result = await _context.Products.Include(y => y.Category)
+            if (PageNumber <= 0 || PageSize <= 0) return BadRequest("Enter Valid imput");
+            var result = await _context.Products.Include(y => y.Category).Skip((PageNumber - 1) * PageSize)
+        .Take(PageSize)
                 .Select(x => new ProductReadDto
                 {
                     ProductId = x.ProductId,
